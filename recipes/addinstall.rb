@@ -65,6 +65,10 @@ execute 'set-group' do
     command 'chgrp -R ops *'
 end
 
+service 'nginx' do
+    action :restart
+end
+
 execute 'database-create' do
 	command "echo \"CREATE DATABASE IF NOT EXISTS " << node[:wp][:sub] << "_wpinst DEFAULT CHARACTER SET utf8; GRANT ALL PRIVILEGES ON  " << node[:wp][:sub] << "_wpinst . * TO dbagent_foo@localhost;\" | mysql --host=localhost --user=dbagent_foo";
 end
@@ -78,12 +82,8 @@ ruby_block 'add_subdomain_listing' do
     end
 end
 
-service 'nginx' do
-    action :restart
-end
-
 execute 'wordpress-database-config' do
-	command 'curl "http://' << node[:wp][:sub] << '.zni.lan/wp-admin/setup-config.php?step=2" --data "dbname=foodriver_wpinst&uname=dbagent_foo&pwd&dbhost=localhost&prefix=wp_&language&submit=Submit"'
+	command 'curl "http://' << node[:wp][:sub] << '.zni.lan/wp-admin/setup-config.php?step=2" --data "dbname='<< node[:wp][:sub] <<'_wpinst&uname=dbagent_foo&pwd&dbhost=localhost&prefix=wp_&language&submit=Submit"'
 end
 
 execute 'wordpress-install-config' do
