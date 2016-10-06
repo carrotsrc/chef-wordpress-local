@@ -1,0 +1,27 @@
+server {
+	listen 80;
+	root /srv/www/vhosts/<%= node[:wp][:sub]; %>.zni.lan/www/public_html;
+	server_name <%= node[:wp][:sub]; %>.zni.lan;
+        access_log /var/log/nginx/<%= node[:wp][:sub]; %>.zni.lan_access.log;
+        error_log /var/log/nginx/<%= node[:wp][:sub]; %>.zni.lan_error.log;
+	index index.php index.htm index.html;
+   	
+	location / {
+                try_files $uri $uri/ /index.php?$args;
+        }
+
+        location ~ \.php$ {
+		try_files	$uri @missing;
+		index          index.php;
+		fastcgi_param SCRIPT_FILENAME $document_root$fastcgi_script_name;
+		add_header XDEGBUG_R "$document_root$fastcgi_script_name" always;
+
+		fastcgi_pass   unix:/run/php-fpm/www.sock;
+		include        fastcgi.conf;
+        }
+
+        location ~* \.(js|css|png|jpg|jpeg|gif|ico)$ {
+                expires max;
+                log_not_found off;
+        }
+}
